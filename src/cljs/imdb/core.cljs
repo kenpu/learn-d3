@@ -7,9 +7,6 @@
 
 (enable-console-print!)
 
-(defn tick [e nodes]
-  (println "ticking" (first nodes)))
-
-(let [edges (-> js/genres .-sim js->clj)]
+(let [edges (-> js/countries .-sim js->clj)]
   (let [mst (graph/kruskal edges)]
-    (.start (d3canvas/force-layout edges mst tick))))
+    (.start (d3canvas/force-layout edges mst d3canvas/tick))))
