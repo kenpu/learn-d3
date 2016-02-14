@@ -52,9 +52,32 @@
 ;; computes the scaling factor
 ;; that is suitable for drawing
 ;;
+(defn bounds
+  [nodes]
+  (let [w (width)
+        h (height)]
+    (loop [nodes nodes
+           minx  (.-x (first nodes))
+           miny  (.-y (first nodes))
+           maxx  minx
+           maxy  miny]
+      (if (empty? nodes)
+        [minx miny maxx maxy]
+        (recur (rest nodes)
+               (min minx (.-x (first nodes)))
+               (min miny (.-y (first nodes)))
+               (max maxx (.-x (first nodes)))
+               (max maxx (.-y (first nodes))))))))
+
 (defn get-fitting
   [nodes]
-  [0.1 0.1 100 100])
+  (let [[minx miny maxx maxy] (bounds nodes)
+        w (width)
+        h (height)
+        scalex (/ w (- maxx minx))
+        scaley (/ h (- maxy miny))
+        scale  (min scalex scaley)]
+    [scale scale (- minx) (- miny)]))
 
 
 
@@ -173,8 +196,9 @@
     (clear)
     (doto canvas
       (.save)
+      (.scale sx sy)
       (.translate tx ty)
-      (.scale sx sy))
+      )
     (doseq [link links]
       (draw-link link))
     (doseq [node nodes]
@@ -188,5 +212,6 @@
 
 (defn tick
   [e nodes links]
+  (println e)
   (resolve! nodes)
   (repaint nodes links))
