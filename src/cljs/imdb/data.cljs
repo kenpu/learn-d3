@@ -3,3 +3,20 @@
   (:require [cljsjs.d3]
             [cljs.core.async :refer [put! chan <! >! timeout close!]]))
 
+(defn- mk-d3-data
+  "Makes the data for D3.
+  data: the original data returned from database query
+  links: a coll of label pairs, from a spanning tree.
+  Returns [vertices, edges] in clj data structures"
+  [data links]
+  (let [edges (-> data (.-sim) (js->clj))
+        sizes (-> data (.-size) (js->clj))
+        labels (sort (set (mapcat #(subvec % 0 2) edges)))
+        lookup (apply hash-map (interleave (range (count labels)) labels))]
+    [
+     (clj->js
+       (map #(hash-map :label % :size 3 :rawsize (sizes %)) labels))
+     (clj->js (into [] (for [[u v] links]
+                {:source (lookup u)
+                 :target (lookup v)})))
+    ]))
