@@ -173,7 +173,6 @@
 (defn repaint
   [nodes links]
   (let [[sx sy tx ty] (get-fitting nodes)]
-    (js/console.debug "kens_debug" nodes)
     (clear)
     (doto canvas
       (.save)
@@ -212,18 +211,33 @@
                               (do
                                 (put! c2 "Ping")))]
                (if (nil? message)
-                 (println "Nil annealing in the pipeline")
+                 (println "[CANVAS] Nil annealing in the pipeline")
                  (do
-                   (println "Annealing stage" message)
+                   (println "[CANVAS] Annealing stage" message)
                    (when-not (nil? init)
                      (init :layout layout 
                            :state state
                            :nodes nodes
                            :links links
                            :counter i))
-                   (.on layout "tick" callback)
-                   (.on layout "end" pingback)
-                   (.start layout)
-                   (recur (inc i))))))))
+
+                   (js/console.debug "kens_debug" nodes links)
+
+                   ;; configure the layout
+                   ;; and start the simulation
+                   (.. layout
+                       (gravity (cnf :gravity))
+                       (charge  (cnf :charge))
+                       (links   links)
+                       (linkStrength (cnf :linkStrength))
+                       (nodes nodes)
+                       (size (cnf :dimension))
+                       (on "tick" callback)
+                       (on "end" pingback)
+                       (start)
+                  )
+
+                  (recur (inc i)))))
+    )))
 
 

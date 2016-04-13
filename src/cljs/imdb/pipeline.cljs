@@ -6,10 +6,10 @@
   []
   (let [c1 (chan)
         c2 (chan)]
-    (go-loop []
-             (println "Waiting for notification... <! c2")
+    (go-loop [n 0]
+             (println "[PIPELINE] Waiting for notification... <! c2")
              (let [ping (<! c2)]
-               (println "Anealing... >! c1:", ping)
+               (println "[PIPELINE] Received" ping ". Anealing... >! c1.")
                (>! c1 {:message "Do nothing"})
-               (recur)))
+               (recur (inc n))))
     [c1 c2]))
