@@ -8,8 +8,11 @@
 
 (enable-console-print!)
 
-(let [data          js/genres
-      edges         (-> js/genres .-sim js->clj)
+(def source js/genres)
+;; (def source js/countries)
+
+(let [data          source
+      edges         (-> data .-sim js->clj)
       mst           (graph/kruskal edges)
       [nodes links] (d/mk-d3-data data mst)]
   (d3canvas/force-layout nodes links))

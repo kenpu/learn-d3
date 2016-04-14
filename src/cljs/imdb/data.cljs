@@ -3,6 +3,14 @@
   (:require [cljsjs.d3]
             [cljs.core.async :refer [put! chan <! >! timeout close!]]))
 
+(defn- percentile
+  [nodes]
+  (let [total (count nodes)
+        sorted (sort-by #(:rawsize %) nodes)]
+    (map #(assoc %1 :rank %2 
+                    :percentile (/ %2 total))
+         sorted (range 1 (inc total)))))
+
 (defn- mk-d3-data
 
   "Makes the data for D3.
@@ -16,7 +24,10 @@
         sizes (-> data (.-size) (js->clj))
         labels (sort (set (mapcat #(subvec % 0 2) edges)))
         lookup (apply hash-map (interleave labels (range (count labels))))
-        nodes (map #(hash-map :label % :size 3 :rawsize (sizes %)) labels)
+        nodes (percentile
+                (map #(hash-map :label % 
+                                :size 3 
+                                :rawsize (sizes %)) labels))
         edges (into []
                     (for [[u v] links]
                       {:source (lookup u)

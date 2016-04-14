@@ -8,7 +8,7 @@
 ;; The driver for d3 visualization
 
 ;; layout configuration
-(def state (atom {:dimension      #js [800 500] 
+(def state (atom {:dimension      #js [600 600] 
                   :gravity        0.1
                   :linkStrength   0.2
                   :charge         -300}))
@@ -35,22 +35,39 @@
 ;; coordinates, and computes the scaling
 ;; required to fit all the data points in
 ;; the configured width and height.
+(defn- mx [node]
+  (let [x (.-x node)
+        r (.-size node)]
+    (- x r)))
+(defn- my [node]
+  (let [y (.-y node)
+        r (.-size node)]
+    (- y r)))
+(defn- Mx [node]
+  (let [x (.-x node)
+        r (.-size node)]
+    (+ x r)))
+(defn- My [node]
+  (let [y (.-y node)
+        r (.-size node)]
+    (+ y r)))
+
 (defn- bounds
   [nodes]
   (let [w (width)
         h (height)]
     (loop [nodes nodes
-           minx  (.-x (first nodes))
-           miny  (.-y (first nodes))
-           maxx  minx
-           maxy  miny]
+           minx  (mx (first nodes))
+           miny  (my (first nodes))
+           maxx  (Mx (first nodes))
+           maxy  (My (first nodes))]
       (if (empty? nodes)
         [minx miny maxx maxy]
         (recur (rest nodes)
-               (min minx (.-x (first nodes)))
-               (min miny (.-y (first nodes)))
-               (max maxx (.-x (first nodes)))
-               (max maxx (.-y (first nodes))))))))
+               (min minx (mx (first nodes)))
+               (min miny (my (first nodes)))
+               (max maxx (Mx (first nodes)))
+               (max maxx (My (first nodes))))))))
 
 ;; computes the [scalex scaley translatex translatey]
 ;; to fit all the nodes in the configured width/height
@@ -137,7 +154,7 @@
         r (.-size node)]
     (doto canvas
       (.save)
-      (aset "fillStyle" "#A9E2F3")
+      (aset "fillStyle" "#555")
       (aset "globalAlpha" 0.6)
       (.beginPath)
       (.arc x y r 0 (* 2 PI))
@@ -156,7 +173,7 @@
         y2 (.-y n2)]
     (doto canvas
       (.save)
-      (aset "strokeStyle" "#888")
+      (aset "strokeStyle" "#eee")
       (aset "lineWidth" 5)
       (.beginPath)
       (.moveTo x1 y1)
@@ -177,8 +194,7 @@
     (doto canvas
       (.save)
       (.scale sx sy)
-      (.translate tx ty)
-      (.restore))
+      (.translate tx ty))
     (doseq [link links]
       (draw-link link))
     (doseq [node nodes]
@@ -205,8 +221,9 @@
              (let [{:keys [message init tick]} (<! c1)
                    callback (fn [e]
                               (do (d3-tick nodes links)
-                                  (when-not (nil? tick)
-                                    (tick nodes links))))
+                                  ;;(when-not (nil? tick)
+                                  ;;  (tick nodes links))
+                              ))
                    pingback (fn [e]
                               (do
                                 (put! c2 "Ping")))]
@@ -220,8 +237,6 @@
                            :nodes nodes
                            :links links
                            :counter i))
-
-                   (js/console.debug "kens_debug" nodes links)
 
                    ;; configure the layout
                    ;; and start the simulation
