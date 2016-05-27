@@ -24,12 +24,11 @@
     (doseq [n nodes]
       (let [perc (.-percentile n)
             size (my-sigmoid perc)]
-        (println "perc" perc "size" size)
         (aset n "size" (* alpha size)))))
 
 (defn- collapse
   [state frac]
-  (let [delta 5]
+  (let [delta 90]
     (swap! state update :charge + delta)))
 
 (defn- init-fn
@@ -43,6 +42,25 @@
                             (collapse state frac))
       :else nil))
 
+(defn- get-stage [n]
+  (cond
+    (<= n 2) {:message "Annealing to remove crossings"
+             :init nil
+             :tick nil
+             :do-layout true}
+    (<= 3 n 6) {:message "Resize categories"
+                :init (fn [{:keys [nodes]}]
+                        (let [frac (/ (- n 3) 3)]
+                          (rawsize->size nodes frac)))
+                :tick nil
+                :do-layout true}
+    (<= 7 n 9) {:message "Compact all categories"
+                :init (fn [{:keys [state]}]
+                        (let [frac (/ (- n 7) 3)]
+                          (collapse state frac)))
+                :do-layout true}
+    :else nil))
+
 
 (defn pipeline
   []
@@ -51,12 +69,10 @@
     (go-loop [n 0]
              (println "[PIPELINE] Waiting for notification... <! c2")
              (let [ping (<! c2)]
-               (println "[PIPELINE] Received" ping ". Anealing... >! c1.")
-               (if (< n 10)
-                 (do
-                   (>! c1 {:message "Do nothing"
-                           :init (init-fn n)})
-                   (recur (inc n)))
-                 (do
+               (println "[PIPELINE] Received" ping)
+               (let [stage (get-stage n)]
+                 (if stage 
+                   (do (>! c1 stage)
+                       (recur (inc n))) 
                    (close! c1)))))
     [c1 c2]))

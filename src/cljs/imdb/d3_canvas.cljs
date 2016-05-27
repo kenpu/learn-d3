@@ -218,41 +218,29 @@
         layout (.force d3.layout)]
     (put! c2 "Init")
     (go-loop [i 0]
-             (let [{:keys [message init tick]} (<! c1)
+             (let [{:keys [message init tick do-layout] :as stage} (<! c1)
                    callback (fn [e]
                               (do (d3-tick nodes links)
-                                  ;;(when-not (nil? tick)
-                                  ;;  (tick nodes links))
-                              ))
-                   pingback (fn [e]
-                              (do
-                                (put! c2 "Ping")))]
-               (if (nil? message)
-                 (println "[CANVAS] Nil annealing in the pipeline")
-                 (do
-                   (println "[CANVAS] Annealing stage" message)
-                   (when-not (nil? init)
-                     (init :layout layout 
-                           :state state
-                           :nodes nodes
-                           :links links
-                           :counter i))
-
-                   ;; configure the layout
-                   ;; and start the simulation
-                   (.. layout
-                       (gravity (cnf :gravity))
-                       (charge  (cnf :charge))
-                       (links   links)
-                       (linkStrength (cnf :linkStrength))
-                       (nodes nodes)
-                       (size (cnf :dimension))
-                       (on "tick" callback)
-                       (on "end" pingback)
-                       (start)
-                  )
-
-                  (recur (inc i)))))
-    )))
-
-
+                                  (when tick (tick {:nodes nodes :links links :e e}))))
+                   pingback #(put! c2 "Ping")]
+               (if stage
+                 (do (println "STAGE [" i "]:" message)
+                     (when init (init {:layout layout 
+                                       :state state 
+                                       :nodes nodes 
+                                       :links links 
+                                       :counter i}))
+                     (when do-layout
+                       (println "LAYOUT(" (cnf :gravity) (cnf :charge) ")")
+                       (.. layout
+                           (gravity (cnf :gravity))
+                           (charge  (cnf :charge))
+                           (links   links)
+                           (linkStrength (cnf :linkStrength))
+                           (nodes nodes)
+                           (size (cnf :dimension))
+                           (on "tick" callback)
+                           (on "end" pingback)
+                           (start))
+                      (recur (inc i))))
+                 (close! c2))))))

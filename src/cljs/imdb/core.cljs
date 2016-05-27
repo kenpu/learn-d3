@@ -9,7 +9,7 @@
 (enable-console-print!)
 
 (def source js/genres)
-;; (def source js/countries)
+;(def source js/countries)
 
 (let [data          source
       edges         (-> data .-sim js->clj)
