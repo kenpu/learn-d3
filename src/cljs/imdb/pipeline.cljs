@@ -1,6 +1,7 @@
 (ns imdb.pipeline
   (:require-macros [cljs.core.async.macros :refer [go go-loop]])
-  (:require [cljs.core.async :refer [put! chan <! >! timeout close!]]))
+  (:require [cljs.core.async :refer [put! chan <! >! timeout close!]]
+            [imdb.draw :as draw]))
 
 (def exp #(.exp js/Math %))
 
@@ -46,19 +47,17 @@
   (cond
     (<= n 2) {:message "Annealing to remove crossings"
              :init nil
-             :tick nil
-             :do-layout true}
+             :tick draw/d3-tick}
     (<= 3 n 6) {:message "Resize categories"
                 :init (fn [{:keys [nodes]}]
                         (let [frac (/ (- n 3) 3)]
                           (rawsize->size nodes frac)))
-                :tick nil
-                :do-layout true}
+                :tick draw/d3-tick}
     (<= 7 n 9) {:message "Compact all categories"
                 :init (fn [{:keys [state]}]
                         (let [frac (/ (- n 7) 3)]
                           (collapse state frac)))
-                :do-layout true}
+                :tick draw/d3-tick}
     :else nil))
 
 
