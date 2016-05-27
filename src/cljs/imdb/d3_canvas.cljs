@@ -17,7 +17,8 @@
     (go-loop [i 0]
              (let [{:keys [message init tick] :as stage} (<! c1)
                    callback (fn [e] 
-                              (when tick (tick {:nodes nodes 
+                              (when tick (tick {:message message
+                                                :nodes nodes 
                                                 :links links 
                                                 :e e})))
                    pingback #(put! c2 "Ping")]
@@ -31,6 +32,7 @@
                      (when tick
                        (println "LAYOUT(" (cnf :gravity) (cnf :charge) ")")
                        (.. layout
+                           (alpha (cnf :alpha))
                            (gravity (cnf :gravity))
                            (charge  (cnf :charge))
                            (links   links)

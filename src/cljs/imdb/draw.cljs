@@ -4,6 +4,7 @@
 
 ;; layout configuration
 (def state (atom {:dimension      #js [600 600] 
+                  :alpha          0.1
                   :gravity        0.1
                   :linkStrength   0.2
                   :charge         -300}))
@@ -177,6 +178,15 @@
       (.closePath)
       (.restore))))
 
+(defn do-draw [nodes f]
+  (let [[sx sy tx ty] (get-fitting nodes)]
+    (doto canvas
+      (.save)
+      (.scale sx sy)
+      (.translate tx ty))
+    (f)
+    (.restore canvas)))
+
 ;; repaint the entire canvas of all the nodes
 ;; and links.
 ;; It also rescales the canvas if necessary to
@@ -184,23 +194,52 @@
 ;; canvas.
 (defn repaint
   [nodes links]
-  (let [[sx sy tx ty] (get-fitting nodes)]
-    (clear)
-    (doto canvas
-      (.save)
-      (.scale sx sy)
-      (.translate tx ty))
-    (doseq [link links]
-      (draw-link link))
-    (doseq [node nodes]
-      (draw-node node))
-    (doto canvas
-      (.restore))))
+  (clear)
+  (do-draw nodes #(do (doseq [link links] (draw-link link))
+                      (doseq [node nodes] (draw-node node)))))
 
 (defn d3-tick [{:keys [nodes links]}]
   (resolve! nodes)
   (repaint nodes links))
 
+; ========================================================
 
+(def M 1000000)
 
+(defn total-rawsize [nodes]
+  (reduce + 0 (map #(.-rawsize %) nodes)))
 
+(defn random [r]
+  (.randomGaussian js/Math 0 (/ r 2)))
+
+(defn rand-255 []
+  (int (* 255 (.random js/Math))))
+
+(defn rand-rgb []
+  (str "RGB(" (rand-255) "," (rand-255) "," (rand-255)))
+
+(defn draw-dot [x y]
+  (doto canvas
+    (.beginPath)
+    (.arc x y 3 0 (* 2 PI))
+    (.fill)
+    (.closePath)))
+
+(defn- -populate [nodes]
+  (println "-pouplate")
+  (let [N (total-rawsize nodes)]
+    (doseq [node nodes]
+      (let [r (.-size node)
+            x (.-x node)
+            y (.-y node)
+            n (int (max 4 (* M (/ (.-rawsize node) N))))]
+        (do (.save canvas)
+            (aset canvas "fillStyle" (rand-rgb))
+            (aset canvas "globalAlpha" 0.05)
+            (dotimes [i n]
+              (let [dx (random r) dy (random r)]
+                (draw-dot (+ x dx) (+ y dy))))
+            (.restore canvas))))))
+
+(defn populate [nodes]
+  (do-draw nodes #(-populate nodes)))
