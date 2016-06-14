@@ -45,7 +45,8 @@
                        (draw/clear)
                        (draw/populate nodes)
                        (draw/do-draw nodes
-                                     #(doseq [l links] (draw/draw-link l))))
+                                     #(do (doseq [l links] (draw/draw-link l))
+                                          (doseq [n nodes] (draw/draw-label n)))))
                :tick nil})
 
 (def ANNEAL {:message "ANNEAL"

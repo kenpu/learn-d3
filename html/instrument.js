@@ -1,8 +1,9 @@
 function instrument(message, nodes, links) {
-    // console.info(message, "size_corr", size_corr(nodes));
-    // console.info(message, "bounding_box", bounding_box(nodes));
-    console.info(message, "compactness", compactness(nodes));
-    // console.info(message, "crossings", crossing(nodes, links), "out of", links.length);
+      return;
+    //console.info(message, "size_corr", size_corr(nodes));
+    //console.info(message, "bounding_box", bounding_box(nodes));
+    //console.info(message, "compactness", compactness(nodes));
+    //console.info(message, "crossings", crossing(nodes, links), "out of", links.length);
 }
 
 // http://mathbits.com/MathBits/TISection/Statistics2/correlation.htm

@@ -9,7 +9,7 @@
                   :linkStrength   0.2
                   :charge         -300}))
 
-;; get the configuration of a paritcular key
+;; get the configuration of a particular key
 (defn cnf [key]
   (@state key))
 
@@ -147,15 +147,32 @@
   [node]
   (let [x (.-x node)
         y (.-y node)
-        r (.-size node)]
+        r (.-size node)
+        name (.-label node)]
     (doto canvas
       (.save)
-      (aset "fillStyle" "#555")
-      (aset "globalAlpha" 0.6)
+      (aset "fillStyle" "#1f1")
+      (aset "globalAlpha" 0.4)
       (.beginPath)
       (.arc x y r 0 (* 2 PI))
       (.fill)
       (.closePath)
+;      (aset "globalAlpha" 0.8)
+;      (aset "fillStyle" "#f11")
+;      (.fillText name (- x (/ r 2)) y)
+      (.restore))))
+      
+(defn draw-label
+  [node]
+  (let [x (.-x node)
+        y (.-y node)
+        r (.-size node)
+        name (.-label node)]
+    (doto canvas
+      (.save)
+      (aset "globalAlpha" 0.8)
+      (aset "fillStyle" "#f11")
+      (.fillText name (- x (/ r 2)) y)
       (.restore))))
 
 ;; draw a link
@@ -169,8 +186,9 @@
         y2 (.-y n2)]
     (doto canvas
       (.save)
-      (aset "strokeStyle" "#eee")
+      (aset "strokeStyle" "#ccc")
       (aset "lineWidth" 5)
+;      (aset "globalAlpha" 0.2)
       (.beginPath)
       (.moveTo x1 y1)
       (.lineTo x2 y2)
@@ -196,7 +214,8 @@
   [nodes links]
   (clear)
   (do-draw nodes #(do (doseq [link links] (draw-link link))
-                      (doseq [node nodes] (draw-node node)))))
+                      (doseq [node nodes] (draw-node node))
+                      (doseq [node nodes] (draw-label node)))))
 
 (defn d3-tick [{:keys [nodes links]}]
   (resolve! nodes)
@@ -232,7 +251,8 @@
       (let [r (.-size node)
             x (.-x node)
             y (.-y node)
-            n (int (max 4 (* M (/ (.-rawsize node) N))))]
+            n (int (max 4 (* M (/ (.-rawsize node) N))))
+            name (.-label node)]
         (do (.save canvas)
             (aset canvas "fillStyle" (rand-rgb))
             (aset canvas "globalAlpha" 0.05)
