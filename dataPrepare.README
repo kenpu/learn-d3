@@ -1,0 +1,16 @@
+dataPrepare.py creates a .json file with attribute values corresponding to 
+entities.
+
+Usage:
+python dataPrepare.py [int]
+Provide an int that corresponds to the desired attribute (i.e. to generate a
+genre JSON, provide the ID 3).
+
+Output:
+movies_{name}.json
+{name} is the verbatim attribute name. If the title of the attribute corresponding
+to ID 8 is "countries", the filename is "movies_countries.json"
+
+Data is structured according to entity name:
+title: value
+Entities with multiple values will be listed in sequence.
