@@ -237,29 +237,48 @@
 (defn rand-rgb []
   (str "RGB(" (rand-255) "," (rand-255) "," (rand-255)))
 
-(defn draw-dot [x y]
+(defn draw-dot [x y color]
   (doto canvas
+    (.save)
+    (aset "fillStyle" color)
+    (aset "globalAlpha" 0.05)
     (.beginPath)
     (.arc x y 3 0 (* 2 PI))
     (.fill)
-    (.closePath)))
+    (.closePath)
+    (.restore)))
 
-(defn- -populate [nodes]
-  (println "-pouplate")
-  (let [N (total-rawsize nodes)]
+(defn- populate-points [nodes]
+  (let [N (total-rawsize nodes)
+        points #js []]
     (doseq [node nodes]
       (let [r (.-size node)
             x (.-x node)
             y (.-y node)
+            ;; number of samples in the node
+            ;; minimum of 4 is needed
             n (int (max 4 (* M (/ (.-rawsize node) N))))
-            name (.-label node)]
-        (do (.save canvas)
-            (aset canvas "fillStyle" (rand-rgb))
-            (aset canvas "globalAlpha" 0.05)
-            (dotimes [i n]
-              (let [dx (random r) dy (random r)]
-                (draw-dot (+ x dx) (+ y dy))))
-            (.restore canvas))))))
+            name (.-label node)
+            color (rand-rgb)]
+        (dotimes [i n]
+           (let [dx (random r) dy (random r)
+                 px (+ x dx)
+                 py (+ y dy)]
+             (.push points #js {:color color :x px :y py})))))
+    points))
+
+
+(defn- draw-population [points]
+  (let [n (.-length points)]
+    (dotimes [i n]
+      (let [point (aget points i)
+            x (aget point "x")
+            y (aget point "y")
+            c (aget point "color")]
+        (draw-dot x y c)))))
 
 (defn populate [nodes]
-  (do-draw nodes #(-populate nodes)))
+  (do-draw nodes #(let [points (populate-points nodes)] 
+                    (draw-population points))))
+
+
