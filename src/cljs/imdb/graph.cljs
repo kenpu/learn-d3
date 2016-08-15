@@ -50,7 +50,7 @@
                 (recur tree-edges edges sets)
                 (let [tree-edges (conj tree-edges [u v])
                       sets       (merge-union sets set-u set-v)]
-                  (println "connecting" u v sim)
+                  ;(println "connecting" u v sim)
                   (recur tree-edges edges sets)))))))
 
 ;;

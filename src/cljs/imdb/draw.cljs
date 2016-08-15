@@ -1,9 +1,10 @@
-(ns imdb.draw)
+(ns imdb.draw
+  (:require [imdb.data :as d]))
 
 ;; The driver for d3 visualization
 
 ;; layout configuration
-(def state (atom {:dimension      #js [600 600] 
+(def state (atom {:dimension      (d/get-size)
                   :alpha          0.1
                   :gravity        0.1
                   :linkStrength   0.2

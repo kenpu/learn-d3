@@ -6,14 +6,33 @@
     </head>
 
     <body>
-        <div id="canvas-div">
-            <canvas width=600 height=600></canvas>
+        <div class="centered"
+            style="position: fixed;
+                   width:100%;
+                   height:100%;
+                   top: 0;
+                   left: 0;">
+            <div style="position: relative; border: thin solid black; width: 600px; height: 600px">
+                <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%">
+                    <canvas width=600 height=600></canvas>
+                </div>
+                <div style="position: absolute; top: 0; left: 0; width: 100%;
+                    height: 100%; opacity: 0.1" id="svg-div">
+            </div>
         </div>
+
+
+        <script src="js/jquery.min.js"></script>
+        <script src="js/d3.v3.min.js"></script>
+        <script src="js/d3.hexbin.min.js"></script>
+
 
         <script src="genres.js"></script>
         <script src="countries.js"></script>
-        <script src="js/jquery.min.js"></script>
         <script src="instrument.js"></script>
+        <!--
+        <script src="imdb-movie-genres.js"></script>
+        -->
         <script>
 Math.randomGaussian = function(mean, standardDeviation) {
     if (Math.randomGaussian.nextGaussian !== undefined) {

@@ -1,7 +1,15 @@
 (ns imdb.data
   (:require-macros [cljs.core.async.macros :refer [go go-loop]])
-  (:require [cljsjs.d3]
+  (:require [alandipert.storage-atom :refer [local-storage clear-local-storage!]]
             [cljs.core.async :refer [put! chan <! >! timeout close!]]))
+
+(def storage (local-storage (atom {}) :imdb))
+
+(defn save! [nodes links]
+  (swap! storage assoc :nodes nodes :links links)
+  (aset js/window "imdb" (clj->js {:nodes nodes :links links})))
+
+(defn retrieve! [] (deref storage))
 
 (defn- percentile
   [nodes]
@@ -32,7 +40,7 @@
                     (for [[u v] links]
                       {:source (lookup u)
                        :target (lookup v)}))]
-    (println lookup)
     [(clj->js nodes)
      (clj->js edges)]))
 
+(defn get-size [] #js [600 600])

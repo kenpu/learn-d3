@@ -12,9 +12,9 @@
                     [com.cemerick/piggieback "0.2.1"]
                     [weasel "0.7.0"]
                     [org.clojure/tools.nrepl "0.2.12"]
-                    [cljsjs/d3 "3.5.3-0"]
                     [tailrecursion/cljs-priority-map "1.1.0"]
-                    [reagent "0.6.0-alpha"]])
+                    [alandipert/storage-atom "1.2.4"]
+                   ])
 
 (require '[adzerk.boot-cljs :refer [cljs]]
          '[pandeiro.boot-http :refer [serve]]

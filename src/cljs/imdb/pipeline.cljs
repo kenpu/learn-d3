@@ -32,11 +32,22 @@
   (let [delta 90]
     (swap! state update :charge + delta)))
 
-(defn I [f]
-  (fn [{:keys [message nodes links] :as arg}]
-    (do (js/instrument message nodes links)
-        (f arg))))
+(def *enable-instrumentation* (atom nil))
 
+(defn I 
+  [f]
+  (if @*enable-instrumentation*
+    ;
+    ; enable instrumentation
+    ;
+    (fn [{:keys [message nodes links] :as arg}]
+      (do (js/instrument message nodes links)
+          (f arg)))
+
+    ;
+    ; disable instrumentation
+    ;
+    f))
 
 ; ============ STAGES ============================
 
@@ -68,7 +79,7 @@
    :tick (I draw/d3-tick)})
 
 
-(defn- get-stage [n]
+(defn- get-stage-2 [n]
   (cond
     (<= n 2) ANNEAL
     (<= 3 n 6) (RESIZE n)
@@ -76,18 +87,23 @@
     (<= 10) POPULATE
     :else nil))
 
+(defn- get-stage [n]
+  (case n
+    0 ANNEAL
+    nil))
+
 
 (defn pipeline
   []
   (let [c1 (chan)
         c2 (chan)]
     (go-loop [n 0]
-             (println "[PIPELINE] Waiting for notification... <! c2")
              (let [ping (<! c2)]
                (println "[PIPELINE] Received" ping)
                (let [stage (get-stage n)]
                  (if stage 
                    (do (>! c1 stage)
                        (recur (inc n))) 
-                   (close! c1)))))
+                   (do (js/console.debug "Closing c1")
+                       (close! c1))))))
     [c1 c2]))

@@ -17,30 +17,16 @@ def stream():
 
 
 n = 0
-out = open("imdb.html", "w")
+out = open("imdb-movie-genres.js", "w")
 
 print >>out, """
-<html>
-<script>
+/* --------------- IMDB MOVIE-GENRE --------------- */
 """
 
-out.write("var x='")
+out.write("var IMDB_MOVIE_GENRES='")
 s = stream()
 for id, title, genre in s:
     out.write("%s|%s|%s|" % (id, title, genre))
 out.write("';\n");
-
-print >>out, """
-</script>
-<body>
-Loaded... wow.
-</body>
-<script>
-console.debug(x.length);
-var y = x.split("|");
-console.debug(y.length / 3);
-</script>
-</html>
-"""
 
 out.close()
