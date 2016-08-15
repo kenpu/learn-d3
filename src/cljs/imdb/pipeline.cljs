@@ -79,17 +79,13 @@
    :tick (I draw/d3-tick)})
 
 
-(defn- get-stage-2 [n]
-  (cond
-    (<= n 2) ANNEAL
-    (<= 3 n 6) (RESIZE n)
-    (<= 7 n 9) (COMPACT n)
-    (<= 10) POPULATE
-    :else nil))
-
 (defn- get-stage [n]
+  (js/console.debug "get-stage" n)
   (case n
-    0 ANNEAL
+    (0 1 2) ANNEAL
+    (3 4 5 6) (RESIZE n)
+    (7 8 9) (COMPACT n)
+    ; 10 POPULATE
     nil))
 
 
