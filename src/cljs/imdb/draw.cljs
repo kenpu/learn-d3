@@ -218,6 +218,11 @@
                       (doseq [node nodes] (draw-node node))
                       (doseq [node nodes] (draw-label node)))))
 
+(defn raw-repaint [nodes links]
+  (doseq [link links] (draw-link link))
+  (doseq [node nodes] (draw-node node))
+  (doseq [node nodes] (draw-label node)))
+
 (defn d3-tick [{:keys [nodes links]}]
   (resolve! nodes)
   (repaint nodes links))

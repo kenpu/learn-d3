@@ -7,7 +7,7 @@
             [cljs.core.async :refer [put! chan <! >! timeout close!]]))
 
 (defn finalize [{:keys [nodes links]}]
-  (d/save! nodes links)
+  ; (d/save! nodes links)
   (js/alert "Done"))
 
 ;; creates a force layout

@@ -37,13 +37,11 @@
   (let [{:keys [nodes links]} (d/retrieve!)]
     (scatter/scatter nodes links)))
 
-
-
-
 (defn DEBUG [loc]
   (let [data (d/retrieve!)]
     (js/console.debug (clj->js data))
-    (scatter/scatter (:nodes data) (:links data))))
+    (FORCE-LAYOUT)
+    (SCATTER)))
 
 (defn UNKNOWN [loc]
   (-> "body" js/$ (.empty) (.append (str "Unknown: " loc))))
