@@ -7,8 +7,8 @@
             [cljs.core.async :refer [put! chan <! >! timeout close!]]))
 
 (defn finalize [{:keys [nodes links]}]
-  ; (d/save! nodes links)
-  (js/alert "Done"))
+  (d/save! nodes links)
+  (js/alert "Layout saved."))
 
 ;; creates a force layout
 ;; It uses the d3.layout
